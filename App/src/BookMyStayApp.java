@@ -1,24 +1,46 @@
+import java.util.HashMap;
+import java.util.Map;
 public class BookMyStayApp {
     public static void main(String[] args) {
+        RoomInventory inventory = new RoomInventory();
         Room single = new SingleRoom();
         Room doubleRm = new DoubleRoom();
         Room suite = new SuiteRoom();
-        int singleAvailable = 5;
-        int doubleAvailable = 3;
-        int suiteAvailable = 2;
+        Map<String, Integer> availability = inventory.getRoomAvailability();
+
+        System.out.println("Hotel Room Inventory Status");
+        System.out.println("---------------------------");
         System.out.println("Single Room:");
         single.displayRoomDetails();
-        System.out.println("Available: " + singleAvailable);
+        System.out.println("Available Rooms: " + availability.get("Single"));
         System.out.println();
-
         System.out.println("Double Room:");
         doubleRm.displayRoomDetails();
-        System.out.println("Available: " + doubleAvailable);
+        System.out.println("Available Rooms: " + availability.get("Double"));
         System.out.println();
-
         System.out.println("Suite Room:");
         suite.displayRoomDetails();
-        System.out.println("Available: " + suiteAvailable);
+        System.out.println("Available Rooms: " + availability.get("Suite"));
+    }
+}
+class RoomInventory {
+    private Map<String, Integer> roomAvailability; ]
+
+    public RoomInventory() {
+        this.roomAvailability = new HashMap<>();
+        initializeInventory();
+    }
+    private void initializeInventory() {
+        roomAvailability.put("Single", 5);
+        roomAvailability.put("Double", 3);
+        roomAvailability.put("Suite", 2);
+    }
+
+    public Map<String, Integer> getRoomAvailability() {
+        return roomAvailability;
+    }
+    public void updateAvailability(String roomType, int count) {
+        roomAvailability.put(roomType, count);
     }
 }
 abstract class Room {
@@ -38,6 +60,7 @@ abstract class Room {
         System.out.println("Price per night: " + pricePerNight);
     }
 }
+
 class SingleRoom extends Room {
     public SingleRoom() { super(1, 250, 1500.0); }
 }
