@@ -3,50 +3,71 @@ import java.util.*;
 class Room {
     int roomId;
     String type;
-    double price;
     boolean available;
 
-    Room(int roomId, String type, double price, boolean available) {
+    Room(int roomId, String type, boolean available) {
         this.roomId = roomId;
         this.type = type;
-        this.price = price;
         this.available = available;
     }
 }
 
-class BookingService {
-    private Map<Integer, Room> inventory = new HashMap<>();
-    private Queue<Integer> bookingQueue = new LinkedList<>();
+class Reservation {
+    int reservationId;
+    int roomId;
+    String customerName;
 
-    public BookingService() {
-        inventory.put(1, new Room(1, "Single", 1000, true));
-        inventory.put(2, new Room(2, "Double", 2000, true));
-        inventory.put(3, new Room(3, "Suite", 4000, true));
+    Reservation(int reservationId, int roomId, String customerName) {
+        this.reservationId = reservationId;
+        this.roomId = roomId;
+        this.customerName = customerName;
+    }
+}
+
+class ReservationService {
+    private Map<Integer, Room> rooms = new HashMap<>();
+    private Map<Integer, Reservation> reservations = new HashMap<>();
+    private int reservationCounter = 1;
+
+    public ReservationService() {
+        rooms.put(1, new Room(1, "Single", true));
+        rooms.put(2, new Room(2, "Double", true));
+        rooms.put(3, new Room(3, "Suite", true));
     }
 
-    public void requestBooking(int roomId) {
-        if (inventory.containsKey(roomId)) {
-            bookingQueue.add(roomId);
-            System.out.println("Booking request added to queue");
-        } else {
+    public void confirmReservation(int roomId, String name) {
+        Room room = rooms.get(roomId);
+
+        if (room == null) {
             System.out.println("Invalid room ID");
-        }
-    }
-
-    public void processBooking() {
-        if (bookingQueue.isEmpty()) {
-            System.out.println("No booking requests");
             return;
         }
 
-        int roomId = bookingQueue.poll();
-        Room room = inventory.get(roomId);
+        if (!room.available) {
+            System.out.println("Room not available");
+            return;
+        }
 
-        if (room.available) {
-            room.available = false;
-            System.out.println("Room " + roomId + " booked successfully");
-        } else {
-            System.out.println("Room " + roomId + " is not available");
+        room.available = false;
+        Reservation res = new Reservation(reservationCounter++, roomId, name);
+        reservations.put(res.reservationId, res);
+
+        System.out.println("Reservation confirmed");
+        System.out.println("Reservation ID: " + res.reservationId);
+        System.out.println("Room ID: " + roomId);
+        System.out.println("Customer Name: " + name);
+    }
+
+    public void viewReservations() {
+        if (reservations.isEmpty()) {
+            System.out.println("No reservations found");
+            return;
+        }
+
+        for (Reservation r : reservations.values()) {
+            System.out.println("Reservation ID: " + r.reservationId +
+                    ", Room ID: " + r.roomId +
+                    ", Customer: " + r.customerName);
         }
     }
 }
@@ -54,21 +75,27 @@ class BookingService {
 public class BookMyStayApp {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        BookingService service = new BookingService();
+        ReservationService service = new ReservationService();
 
         while (true) {
-            System.out.println("1. Request Booking");
-            System.out.println("2. Process Booking");
+            System.out.println("1. Confirm Reservation");
+            System.out.println("2. View Reservations");
             System.out.println("3. Exit");
 
             int choice = sc.nextInt();
+            sc.nextLine();
 
             if (choice == 1) {
                 System.out.println("Enter room ID:");
-                int id = sc.nextInt();
-                service.requestBooking(id);
+                int roomId = sc.nextInt();
+                sc.nextLine();
+
+                System.out.println("Enter customer name:");
+                String name = sc.nextLine();
+
+                service.confirmReservation(roomId, name);
             } else if (choice == 2) {
-                service.processBooking();
+                service.viewReservations();
             } else if (choice == 3) {
                 break;
             }
